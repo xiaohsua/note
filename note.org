@@ -1,0 +1,272 @@
+#+TITLE: Note
+#+AUTHOR: Ben-PJ.Xu
+#+OPTIONS: ^:nil
+#+TAGS: cpp EV ml prophet IFRS git
+* What is a variable in C++?						:cpp:
+  - a variable provides us with named memory storage
+    that we can write to, retrieve, and manipulate
+  - a variable always denotes an object
+  - an object (or a variable) is always addressable
+  - there are two values associated with an object
+    (or a variable):
+    1. data value or rvalue or read value (literal
+       constant can also serve as an rvalue
+    2. address value or lvalue or location value
+
+* How to reflect OG under CIRC EV?					 :EV:
+** Example 1
+   Given the following scenarios:
+   |---+--------+--------+--------|
+   | t | scen 1 | scen 2 | scen 3 |
+   |---+--------+--------+--------|
+   | 1 |     15 |     15 |     30 |
+   |---+--------+--------+--------|
+   where scen 2 is the best estimate scenario, the $TVOG = E(CF)-CF^{BE} = 20 - 15 = 5$.
+   When projection (on BEA) is conducted for EV, then the distributable earning
+   -15($=-5+5-15$) and the EV = -15. In this case, OG is not reflected. So the EV
+   should be $-15 - 5 = -20$.
+** Example 2
+   Given the following information:
+   1. a participating policy, whose reserve equals to 100
+   2. the total asset equals to 130
+   3. guaranteed interest rate equals to 2%
+   4. there are 3 interest rate scenarios:
+      |--------+----|
+      | scen 1 | 0% |
+      | scen 2 | 3% |
+      | scen 3 | 6% |
+      |--------+----|
+      and ``scen 2'' is the best estimate scenario
+   5. RDR equals to 0%
+   6. p/h participating ratio equals to 100%
+   7. TVOG equals to
+      \begin{eqnarray*}
+        \mathrm{TVOG} & = & E(\mathrm{CF}) - \mathrm{CF^{BE}} \\
+                      & = & \frac{1}{3} \times (103+103+106) - 103 \\
+                      & = & 1
+      \end{eqnarray*}
+   
+   Calculate EV which equals NAV + ViF:
+   \begin{eqnarray*}
+     \mathrm{NAV} & = & 130 - 100 - 1 = 29 \\
+     \mathrm{ViF} & = & \mathrm{CF} + \mathrm{NII} - \Delta \mathrm{RES} \\
+                  & = & -103 + 3 - (-101) \\
+                  & = & 1
+   \end{eqnarray*}
+   But actually the EV should be equal to 29.
+
+* Classification problem in machine learning				 :ml:
+  Why I am confused about the classification problem is
+  that $y$ is discrete-valued, however a continuous function
+  is used as hypothesis (*sigmoid function*).
+  $$h_{\theta}(x) = g(\theta^{T}x) = \frac{1}{1+e^{-\theta^T x}}$$
+  where
+  $$g(z) = \frac{1}{1+e^{-z}}$$
+  
+  A property of the derivative of the sigmoid function:
+  \begin{eqnarray*}
+    g^{\prime}(z) & = & \frac{d}{dz} \frac{1}{1+e^{-z}} \\
+             & = & \frac{1}{(1+e^{-z})^2} (e^{-z}) \\
+             & = & \frac{1}{(1+e^{-z})} \cdot \left( 1 - \frac{1}{(1+e^{-z})} \right) \\
+             & = & g(z) \left( 1 - g(z) \right)
+  \end{eqnarray*}
+
+  How to fit $\theta$?
+  1. endow our classification model with a set of probabilistic assumptions
+  2. fit the parameters via maximum likelihood
+  
+  Assuming that
+  \begin{eqnarray*}
+    P(y=1 |x;\theta) & = & h_{\theta}(x) \\
+    P(y=0 |x;\theta) & = & 1 - h_{\theta}(x)
+  \end{eqnarray*}
+  more compactly,
+  $$ p(y|x;\theta) = (h_{\theta}(x))^y(1-h_{\theta}(x))^{1-y} $$
+  Likelihood of the parameters is as following:
+  \begin{eqnarray*}
+    L(\theta) & = & p(\vec{y}|X;\theta) \\
+              & = & \prod _{i=1}^{m} p(y^{(i)} | x^{(i)}; \theta ) \\
+              & = & \prod _{i=1}^{m} (h_{\theta}(x^{(i)}))^{y^{(i)}} (1 - h_{\theta}(x^{(i)}))^{1-y^{(i)}}
+  \end{eqnarray*}
+  it will be easier to maximize the log likelihood:
+  \begin{eqnarray*}
+    \ell (\theta) & = & \log L(\theta) \\
+                  & = & \sum _{i=1}^m y^{(i)} \log h(x^{(i)}) + (1-y^{(i)}) \log(1-h(x^{(i)}))
+  \end{eqnarray*}
+  how to maximize the log likelihood? *Gradient Ascent*:
+  $$ \theta := \theta + \alpha \nabla _{\theta} \ell (\theta) $$
+  or *stochastic gradient ascent rule*:
+  $$ \theta_j := \theta_j + \alpha (y^{(i)} - h_{\theta}(x^{(i)})) x_j^{(i)} $$
+  which means every time we are given a ith trainning sample, we update jth
+  component of vector $\theta$ as last value of jth component of vector $\theta$
+  minus the product of $\alpha$, $y^{(i)}$ minus $h$ of ith $x$ vector (using the
+  last $\theta$ vector), and the jth feature in ith $x$.
+
+* Applying Newton's Method to fit \theta given a likelihood function $\ell(\theta)$ :ml:
+  To maximize $\ell(\theta)$, we should find the $\theta$ make $\ell ^{\prime}(\theta)$
+  equals to zero. Then Newton's method has the following update rule:
+  $$ \theta ^{(t+1)} := \theta ^{(t)} - \frac{\ell^{\prime}(\theta ^{(t)})}{\ell^{\prime \prime}(\theta ^{(t)})} $$
+  Matrix form:
+  $$ \theta := \theta - H^{-1} \nabla _{\theta} \ell (\theta) $$
+  where $H$ is called *Hessian*, whose entries are given by
+  $$ H_{ij} = \frac{ \partial ^2 \ell ( \theta ) }{\partial \theta _i \partial \theta _j} $$
+  
+* More generalised approach for a machine learning alogorithm		 :ml:
+  1. assuming the probability distribution for $y$
+  2. relate feature vector $x$ to the probability/distribution function underlying $y$
+  3. write the expression for $\ell$ in term of $\theta$ (parameters underlying the probability/distribution function)
+  4. find the $\theta$ by maximizing the $\ell (\theta)$
+* Why extended formula?						    :prophet:
+  1. looping statement
+  2. use of local and global variables
+  3. use of user defined function
+  4. retention of values
+
+* How to use extended formula?					    :prophet:
+  1. use just like a normal variable, however more complex facilities
+     are allowed (i.e. local variables, looping \ldots) --- no ``PUBLIC''
+     declaration, no ``PARAMETER'' declaration, assign the calculated result to
+     ``VAR_NAME''
+  2. use as an in-memory table to improve efficiency, the following
+     gives an example
+     #+BEGIN_SRC
+       public INT_RATE(0) as number
+       private YR as number
+       private T_YR as number
+       T_YR := 50
+       for YR := 1 to T_YR
+         INT_RATE(YR) := READ_GENERIC_TABLE(...)
+       next
+     #+END_SRC
+  3. parameterised extended formulas actually provide a way of 
+     abstraction of calculation process. However, it cannot be
+     called directly. Instead an instantiation of the parameterised
+     formula is created within another formula. The variable associated
+     with that formula can then be used to access variables with the
+     parameterised formula.
+     #+BEGIN_SRC
+       #PRAM_EX_FORM("PARAMETER")
+     #+END_SRC
+  4. parameterised extended formula is macro I guess, when called, it
+     should just perform a substitution of text.
+* Use of ``CONSTRAINT'' qualifier				    :prophet:
+  #+BEGIN_SRC
+    private VAR as text CONSTRAINT {"FOO", "BAR", "QUX"}
+    private VAR_ARR(10) as text CONSTRAINT {"FOO", "BAR", "QUX"}
+  #+END_SRC
+* Use of ``PERSISTENT''						    :prophet:
+  Using ``PERSISTENT'' t-dependent extended variable will not
+  require re-calculation of this variable for certain period
+  already calculated.
+
+  Another method could be used to achieve the same effect is to
+  use a normal variable to retrieve the values calculated in the
+  extended formula and referring the normal variable.
+* Use of enumeration						    :prophet:
+  An enumeration defines
+  1. a type
+  2. possible values (intergral constants)
+  3. the size of possible values
+  When used in the following way:
+  #+BEGIN_SRC
+    private MY_ARRAY(BOND_TYPE) as number
+  #+END_SRC
+  the size of possible values is used.\\
+  When used in the following way:
+  #+BEGIN_SRC
+    private SEX as SEX_TYPE
+  #+END_SRC
+  the enumeration actually define a ``SEX_TYPE'' type.
+* Performance issues 						    :prophet:
+  1. do not use ``READ_GENERIC_TABLE'' with t-dependent index
+  2. do not use function ``exp'' or ``^''
+* Tips on Prophet						    :prophet:
+  1. distinguish between input variable and core variable
+  2. see which definition is actually used
+  3. see which indicators are attached with the product
+  4. when run an accumulation, previously produced results will
+     also be included
+  5. the scope of variable shown when using result diagram view
+     (standard output, AA00, \ldots)
+  6. ``VAR_NAME'' in Prophet is just as macro
+  7. it seems there is no way to access the variable indirectly
+  8. rebasing loop should be outside calculation loop, this means
+     do rebasing first, then do calculation loop
+  9. string variable could not be used as an intermediate variable
+     in calculation loop --- use an extended formula, assign the
+     string variable to a scope of this extended formula
+  10. when referring the scope of a t-dependent extended formula,
+      it should be written as ``EX_FORM(t).FIELD''
+* Building a model in Prophet from scratch			    :prophet:
+** must have a t-dependent variable
+** mandatory varible
+   - PROJ_TERM_Y
+   - DUR_M (this variable should be not dependent on t)
+* Combining rebasing loops with calculation loops		    :prophet:
+  Rebasing loops should be within each calculation loops, 
+  I guess C code would be like below:
+  #+BEGIN_SRC c
+    int DUR_M;
+    int PROJ_TERM_Y;
+    int NUM_CLCLOOPS;
+    int NEW_REBASE_M(int REBASE_MTH);
+    for (int CALC_LOOP=1; CALC_LOOP<=NUM_CLCLOOPS; CALC_LOOP++) {
+        for (int REBASE_MTH=DUR_M; REBASE_MTH!=PROJ_TERM_Y*12; NEW_REBASE_M(REBASE_MTH)) {
+            // calculating variables
+        }
+    }
+  #+END_SRC
+  Each calculation loop would stand for each projection on a certain assumption,
+  however, each run I think should only contain one main assumption. So why
+  are calculation loops needed? --- ``projection(s) in projection'' problem. The
+  former ``projection(s)'' may refer to the required projection(s) to calculate
+  reserves on various assumption(s) different from the experience assumption, which
+  is the assumption on which the latter projection is performed.
+
+  Each rebasing loop in a certain calculation loop would be used to calculate a
+  certain reserve (depending on the calculation loop) for a future period (indicated
+  by the ``REBASE_MTH'' variable in the rebasing loop). So when the experience
+  assumption is used in a certain calculation loop, rebasing loops are not required.
+  Because no reserve on a different assumption is needed.
+
+  The following is my model design:
+  For each run, the following items should be specified:
+  - main assumption
+  - a loop info table which indicates the reserves need to be calculated and
+    the rebasing setting
+
+  The first calculation loop is always reserved for the main assumption, used to
+  project the experience status variables (account value, number of in-force 
+  policies ...). The rebasing setting for the first calculation loop would
+  always be set as ``NA'' which indicate no rebasing loops are needed.
+
+  Then, each calculation loop is iterated and with the related rebasing setting
+  reserves on different assumption are projected.
+
+  Finally, if the experience cash flows are still needed, one more projection
+  on the experience are needed produce the required cash flows. (This is flaw
+  in this design, because the experienc projection is performed twice.)
+* Git basics								:git:
+  status:
+  - untracked
+  - staged
+  - commited
+* Gray's talk on Prophet					    :prophet:
+  - code and table
+  - factor out commonalities (parameterised modelling) by code,
+    differences as parameters in table
+  - benefit array
+  - decompostion of t-dependent benefit
+  - introduce assumption band, assign band to product or channel ...,
+    assign assumption to band
+  - `PPP_BAND''? Readability?
+  - parameterisation of table names
+  - column vector stands for vector of policies of various status;
+    row vector stands for probabilities of insured evenets;
+    matrix stands for sum assured payable conditional on status and insured
+    events;
+    matrix stands for transition matrix
+  - calculate each possible TAR choices? By an array variable
+  - product level dimension, override the dimension defined at
+    workspace level
+  - ``LIMIT_C_LPS'' variable?
