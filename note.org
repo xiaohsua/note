@@ -306,6 +306,7 @@
   - economic variance as a main source for the postive movement for MCEV
   - two main busines: Regular Premium business and Portfolio Bonds
   - products within the same business seem has varying level of profits
+  - test
 * Angela							       :work:
   - key questions instead of report
   - actuarial, product
