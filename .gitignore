@@ -1,2 +1,8 @@
 *~
 \#*\#
+*.tex
+*.log
+*.out
+*.toc
+*.aux
+*.pptx

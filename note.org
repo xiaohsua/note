@@ -1,7 +1,7 @@
 #+TITLE: Note
 #+AUTHOR: Ben-PJ.Xu
 #+OPTIONS: ^:nil
-#+TAGS: cpp EV ml prophet IFRS git
+#+TAGS: cpp EV ml prophet IFRS git work
 * What is a variable in C++?						:cpp:
   - a variable provides us with named memory storage
     that we can write to, retrieve, and manipulate
@@ -129,7 +129,7 @@
      ``VAR_NAME''
   2. use as an in-memory table to improve efficiency, the following
      gives an example
-     #+BEGIN_SRC
+     #+BEGIN_SRC c
        public INT_RATE(0) as number
        private YR as number
        private T_YR as number
@@ -144,13 +144,13 @@
      formula is created within another formula. The variable associated
      with that formula can then be used to access variables with the
      parameterised formula.
-     #+BEGIN_SRC
+     #+BEGIN_SRC c
        #PRAM_EX_FORM("PARAMETER")
      #+END_SRC
   4. parameterised extended formula is macro I guess, when called, it
      should just perform a substitution of text.
 * Use of ``CONSTRAINT'' qualifier				    :prophet:
-  #+BEGIN_SRC
+  #+BEGIN_SRC c
     private VAR as text CONSTRAINT {"FOO", "BAR", "QUX"}
     private VAR_ARR(10) as text CONSTRAINT {"FOO", "BAR", "QUX"}
   #+END_SRC
@@ -168,12 +168,12 @@
   2. possible values (intergral constants)
   3. the size of possible values
   When used in the following way:
-  #+BEGIN_SRC
+  #+BEGIN_SRC c
     private MY_ARRAY(BOND_TYPE) as number
-  #+END_SRC
+  #+END_SRC c
   the size of possible values is used.\\
   When used in the following way:
-  #+BEGIN_SRC
+  #+BEGIN_SRC c
     private SEX as SEX_TYPE
   #+END_SRC
   the enumeration actually define a ``SEX_TYPE'' type.
@@ -270,3 +270,75 @@
   - product level dimension, override the dimension defined at
     workspace level
   - ``LIMIT_C_LPS'' variable?
+* New Feature in Prophet 9					    :Prophet:
+  - module :: contains a set of user-defined function which encapsulates certain calculation logic
+  - flexible tables :: when setting up a flexible table, meta-info about how to read it is also given,
+    then no need for any codes to control how to read table
+  - Split by Model Point Batches :: not only by Product
+  - Books :: a sub-liabrary that allow a more flexible and neat way to organise code
+  - PP API Enhancements :: embedded calculation logic built in Prophet with you other application,
+    e.g. Excel Workbook ...
+* EV review - Project Jade					    :EV:work:
+  - 84% on a TEV basis (or 78% on an MCEV basis) of PV of DE relates
+    to cashflows in the first 10 years of projection as at 31 Dec 2015
+  - 47m of profits was expected to monetise from ViF
+  - this pattern gives the insurer the flexibility
+  - primarily fee charges and relatively small expenses for unit-linked
+    policies
+  - 10% reduction in lapses would lead to a 11.2m, increase in MCEV, 2%
+    (downside impact?)
+  - 10% reduction in expense would lead to 26.6m, increase in MCEV, 5%
+  - Value of Sterling, exchange rate
+  - new business margin decreases
+  - postive movement comes from prudence in the technical provision,
+    exchange rate, offset by the decreasing of interest rate and non-recurring
+    development cost
+  - negative non-linked reserve is the sterling reserve, to the extent of
+    the cash value
+  - Hong Kong regulatory regime applies
+  - Current regulatory environment
+  - currency hedge only for non-linked part
+  - deferred acq. cost ... would be removed from NAW
+  - tax currently are free
+  - calculation of CNHR and Risk Margin under Solvency II
+  - FCoC is zero? No tax but also no investment income, intangible asset should
+    be removed from NAW.
+  - economic variance as a main source for the postive movement for MCEV
+  - two main busines: Regular Premium business and Portfolio Bonds
+  - products within the same business seem has varying level of profits
+* Angela							       :work:
+  - key questions instead of report
+  - actuarial, product
+  - 摸底汇报给海航
+  - 汇总东西，提技术问题
+  - 根据现金流specing？
+  - 业务萎缩
+  - 5亿，做成8亿?
+  - 新业务 cash flow cross multiplication
+  - 新业务现金流
+  - 高净值客户
+  - 香港是个branch，但不能单独卖
+  - Bond 就是 Single Premium
+  - 2015 马岛，香港萎缩因为执业15，SAR要求，执业16，演示要求
+  - 为什么马岛业务萎缩？
+  - Solvency regime，旧体系，GPV，static factor
+  - 马岛在 Solvency II 下，available capital 和 threhold 都变了
+  - 香港跟老的法定差不多
+  - 合并报表时注意 NPV，GPV
+  - Solvency II 应该有 Testing
+  - Valuation 以 Solvency I 为主，basis 以 TEV 为主
+  - Observation, summary, question
+  - Valuation report:
+    assumption is hiden
+    - business overview
+      - product 性质描述 landscape，target在卖怎样的产品？Business Plan
+      - channel 
+      - sales
+    - solvency status, summary of reserves: components, mannual adjustment 是什么？
+      - analysis of reserve movement
+      - Bridging current reserve and Solvency II reserve
+      - Avaiable capital, any conversion between solvency regime
+    - EV
+  - Risk: FCR report
+  - Other management accounts
+  - Reinsurance

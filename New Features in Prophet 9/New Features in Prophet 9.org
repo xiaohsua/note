@@ -1,0 +1,51 @@
+#+Title: Prophet 9 新功能介绍
+#+LATEX_CLASS: cn-article
+* Module
+** Module 是什么？如何工作？
+   - Module ::  包括一些变量的定义，一些 Module Input Variable 的设置。
+   - 工作原理：
+     1. 我们在 Module Input Variable 定义哪些 variable 作为 module 的输入；
+     2. 我们通过 Module Input Variable 给 Module 传递了输入，又通过在 module
+        中定义的变量进行计算；
+     3. 最后，我们在想从 module 中取结果的 product 中建立 Module Link Variable，
+        从而把 module 中的计算结果取到 product 中来。
+** 为什么要用 Module？
+   - 模块化 :: 简单来说就是把一部分计算从 product 里挪到另外个地方并给那个地方取个好名字
+     这样做的好处是：我们的复杂的精算模型（系统）被``自然''的分成各个相较简单的模块，这些
+     模块自己只需要关心自己要计算的部分，而开发和维护一个个小模块就变得容易起来。
+   - 可重用性 :: 一个 Module 可以被同一个 Liabrary 中的不同的 Products 使用，
+     可以被不同 Liabraries 里的 Products 使用。前者，实际上也可以通过 Core Variable
+     实现，而后者只能用 Module 来实现，这样就不需要从不同 Liabraries 之间复制粘贴代码了。
+   - 可读性 :: 我们模型的代码不光是用来跑的，还是用来给人读的。而因为我们给每个模块取了名字
+     （假定每个名字都取得很贴切），那么代码就更易读性，模型结构就更清晰了。
+** 什么时候用 Module？
+   不关``product''逻辑的计算的时候。Prophet User Guide 中对 Product 的定义是: 
+   each product specifies a single set of calculations \ldots you
+   can think of products in Prophet as computer programs。显然，这个
+   定义并不符合我们对``product''这个单词更直接的含义 --- 保险产品。而有了 Module
+   之后，我们真的就可以把 Prophet 中的``product''认为就是保险产品了，因为我们可以
+   在 product 中，只定义跟保险产品直接有关的变量，而将 Valuation 过程或者基于保险
+   产品的负债计算完全挪到相应的 Module 中计算，从而使``product''名副其实。
+
+   什么东西可以单独放在 Module 里？
+   - 现金价值因子的计算
+   - 会计准则逻辑（C-ROSS，IFRS 17 \ldots）
+   - 公司每个 Fund 的宣告策略（都可以成为一个单独的模块）
+   - \dots
+   但要注意的是在 Module 中的计算层面和该 Module 连接的 Product 的模型点的层面是一样的，
+   比如 Product 的模型点是每张保单，那 Module 的计算层面也是保单层面。
+* Flexible Table
+** 什么是 Flexible Table?
+   Flexible Table 包含了如何读取它本身的信息。
+** 为什么要用 Flexible Table？
+   因为 Flexible Table 本身就知道怎么读取它的值，所用就不需要用代码来告诉如何
+   读表。本质上，跟 Module 一样，有了 Flexible Table 后，我们可以将如何
+   读表的逻辑从 Product 中挪走（因为我们已经在 Flexible Table 定义如何
+   读取它），让``Product''更专注 product 本身。
+** 什么时候用 Flexible Table?
+   - 佣金率，现价的附加费用率
+     因为这佣金率表不但数值上随着产品不同而不同，其结构本身也可能不同，有的可能跟缴费期
+     有关，有的可能跟保障期间有关，有的可能既跟缴费期间有关又和保障期间有关，没有 Flexible
+     table 的时候，我们要不通过 code 来告诉它怎么读，或者去建立一个表，然后包含
+     了所有可能的index，但是这样的话，我们的表将产生大量的冗余，一个只佣金率跟缴费期有关
+     的产品，你不得不在无关的index下去输入一些``NA''值或者``0''值。l
